@@ -29,7 +29,7 @@ export function LocationMap() {
   const validItems = items.filter((item) => typeof item.latitude === 'number' && typeof item.longitude === 'number');
 
   return (
-    <MapContainer center={[-23.55052, -46.633308]} zoom={13} className="h-[320px] w-full rounded-2xl">
+    <MapContainer center={[-23.55052, -46.633308]} zoom={13} className="h-[280px] w-full rounded-2xl sm:h-[320px]">
       <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {validItems.map((item) => (
         <Marker key={item.id} position={[Number(item.latitude), Number(item.longitude)]} icon={icon}>

@@ -24,7 +24,7 @@ export default function ReportsPage() {
 
   return (
     <AppShell>
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
         <h1 className="text-2xl font-semibold">Relatórios</h1>
         <p className="mt-1 text-sm text-slate-500">Gere relatórios filtrados e exporte em Excel, CSV e PDF.</p>
         <div className="mt-6 flex flex-wrap gap-3">
@@ -35,8 +35,8 @@ export default function ReportsPage() {
 
         {loading ? <p className="mt-6 text-sm text-slate-500">Carregando relatório...</p> : null}
 
-        <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200">
-          <table className="min-w-full text-left text-sm">
+        <div className="mt-8 max-w-full overflow-x-auto rounded-2xl border border-slate-200">
+          <table className="min-w-[42rem] text-left text-sm">
             <thead className="bg-slate-50 text-slate-600">
               <tr>
                 <th className="px-4 py-3">Nome</th>

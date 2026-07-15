@@ -51,7 +51,7 @@ export default function DashboardPage() {
           ))}
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section id="mapa" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
           <h2 className="text-xl font-semibold">Mapa resumido</h2>
           <p className="mt-2 text-sm text-slate-500">Os pontos cadastrados aparecem em um mapa interativo com Leaflet.</p>
           <div className="mt-4">
