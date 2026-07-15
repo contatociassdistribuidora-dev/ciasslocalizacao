@@ -19,7 +19,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   async function handleSignOut() {
     await signOut();
-    router.push('/login');
+    router.replace('/login');
+    router.refresh();
   }
 
   return (

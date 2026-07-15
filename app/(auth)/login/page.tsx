@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { loginSchema } from '@/lib/schemas';
 import { signIn } from '@/lib/auth';
+import { getCurrentProfile } from '@/src/services/profiles';
 
 type LoginFormValues = {
   email: string;
@@ -25,7 +26,20 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     try {
       await signIn(values.email, values.password);
+      const profile = await getCurrentProfile();
+
+      if (!profile) {
+        setError('Perfil não encontrado para este usuário.');
+        return;
+      }
+
+      if (!profile.active) {
+        setError('Seu usuário está inativo.');
+        return;
+      }
+
       router.push('/dashboard');
+      router.refresh();
     } catch (error) {
       console.error(error);
       setError('Falha ao fazer login. Verifique as credenciais.');
