@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
+import writeXlsxFile from 'write-excel-file/browser';
 
 export function exportCsv(rows: Array<Record<string, unknown>>) {
   const csvContent = [Object.keys(rows[0] ?? {}).join(',')]
@@ -17,11 +17,13 @@ export function exportCsv(rows: Array<Record<string, unknown>>) {
   URL.revokeObjectURL(url);
 }
 
-export function exportExcel(rows: Array<Record<string, unknown>>) {
-  const worksheet = XLSX.utils.json_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Relatório');
-  XLSX.writeFile(workbook, 'relatorio.xlsx');
+export async function exportExcel(rows: Array<Record<string, unknown>>) {
+  const columns = Object.keys(rows[0] ?? {});
+  const data = [
+    columns.map((column) => ({ value: column, fontWeight: 'bold' as const })),
+    ...rows.map((row) => columns.map((column) => ({ value: String(row[column] ?? '') }))),
+  ];
+  await writeXlsxFile(data, { sheet: 'Relatório' }).toFile('relatorio.xlsx');
 }
 
 export function exportPdf(rows: Array<Record<string, unknown>>) {
