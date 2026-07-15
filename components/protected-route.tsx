@@ -24,9 +24,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     async function checkSession() {
       try {
-        const { data } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+
         if (!active) return;
-        if (!data.session) {
+        if (!session) {
           router.replace('/login');
           return;
         }
@@ -34,7 +36,12 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         const profile = await getCurrentProfile();
         if (!active) return;
 
-        if (!profile?.active) {
+        if (!profile) {
+          setError('Perfil não encontrado para este usuário.');
+          return;
+        }
+
+        if (!profile.active) {
           setError('Seu usuário está inativo. Entre em contato com o administrador.');
           return;
         }
@@ -47,7 +54,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         setReady(true);
       } catch (err) {
         if (!active) return;
-        console.error(err);
+        console.error('protected route error', err);
         setError('Não foi possível validar sua sessão.');
       }
     }

@@ -25,8 +25,11 @@ export default function LoginPage() {
 
   const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     try {
-      await signIn(values.email, values.password);
+      const signInResult = await signIn(values.email, values.password);
+      console.info('signInWithPassword ok', Boolean(signInResult.session));
+
       const profile = await getCurrentProfile();
+      console.info('profile loaded', profile?.role, profile?.active);
 
       if (!profile) {
         setError('Perfil não encontrado para este usuário.');
@@ -41,8 +44,9 @@ export default function LoginPage() {
       router.push('/dashboard');
       router.refresh();
     } catch (error) {
-      console.error(error);
-      setError('Falha ao fazer login. Verifique as credenciais.');
+      const message = error instanceof Error ? error.message : 'Falha ao fazer login. Verifique as credenciais.';
+      console.error('login failed', message);
+      setError(message);
     }
   };
 
