@@ -1,4 +1,4 @@
-import { supabase } from '@/src/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
 
 export type ProfileRecord = {
   id: string;
@@ -11,6 +11,7 @@ export type ProfileRecord = {
 };
 
 export async function getCurrentProfile() {
+  const supabase = getSupabaseBrowserClient();
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!user) return null;
@@ -21,6 +22,7 @@ export async function getCurrentProfile() {
 }
 
 export async function updateProfile(id: string, payload: Partial<ProfileRecord>) {
+  const supabase = getSupabaseBrowserClient();
   const { data, error } = await supabase.from('profiles').update(payload).eq('id', id).select().single();
   if (error) throw error;
   return data as ProfileRecord;

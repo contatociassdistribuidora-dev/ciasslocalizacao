@@ -1,4 +1,6 @@
-import { supabase } from '@/src/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
+
+const supabase = getSupabaseBrowserClient();
 
 export async function createVisit(payload: Record<string, unknown>) {
   const { data, error } = await supabase.from('visits').insert(payload).select().single();

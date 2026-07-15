@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
+import { getAuthErrorMessage } from '@/src/lib/supabase/env';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -10,10 +11,10 @@ export default function ResetPasswordPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await getSupabaseBrowserClient().auth.updateUser({ password });
 
     if (error) {
-      setError(error.message);
+      setError(getAuthErrorMessage(error));
       return;
     }
 

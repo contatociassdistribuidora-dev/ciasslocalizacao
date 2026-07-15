@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
+import { getAuthErrorMessage } from '@/src/lib/supabase/env';
 import { getCurrentProfile } from '@/src/services/profiles';
 
 function canAccessRoute(pathname: string, role?: string | null) {
@@ -24,6 +25,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     async function checkSession() {
       try {
+        const supabase = getSupabaseBrowserClient();
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
 
@@ -42,7 +44,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         }
 
         if (!profile.active) {
+          await supabase.auth.signOut();
           setError('Seu usuário está inativo. Entre em contato com o administrador.');
+          router.replace('/login');
           return;
         }
 
@@ -54,8 +58,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         setReady(true);
       } catch (err) {
         if (!active) return;
-        console.error('protected route error', err);
-        setError('Não foi possível validar sua sessão.');
+        setError(getAuthErrorMessage(err));
       }
     }
 

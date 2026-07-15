@@ -3,11 +3,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { loginSchema } from '@/lib/schemas';
-import { signIn } from '@/lib/auth';
+import { signIn, signOut } from '@/lib/auth';
 import { getCurrentProfile } from '@/src/services/profiles';
+import { checkSupabaseConnection } from '@/src/lib/supabase/client';
+import { devSupabaseLog, getAuthErrorMessage } from '@/src/lib/supabase/env';
 
 type LoginFormValues = {
   email: string;
@@ -23,30 +25,41 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      checkSupabaseConnection().catch(() => {
+        // O formulário exibirá uma mensagem sanitizada caso o login também falhe.
+      });
+    }
+  }, []);
+
   const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
+    setError('');
     try {
       const signInResult = await signIn(values.email, values.password);
-      console.info('signInWithPassword ok', Boolean(signInResult.session));
+      if (!signInResult.user || !signInResult.session) throw new Error('Não foi possível criar a sessão.');
+      devSupabaseLog('Usuário autenticado.', { authenticated: true });
 
       const profile = await getCurrentProfile();
-      console.info('profile loaded', profile?.role, profile?.active);
 
       if (!profile) {
-        setError('Perfil não encontrado para este usuário.');
+        await signOut();
+        setError('Perfil do usuário não encontrado.');
         return;
       }
 
       if (!profile.active) {
-        setError('Seu usuário está inativo.');
+        await signOut();
+        setError('Usuário inativo. Entre em contato com o administrador.');
         return;
       }
 
-      router.push('/dashboard');
+      devSupabaseLog('Perfil carregado.', { active: true, role: profile.role ?? 'não definida' });
+      devSupabaseLog('Redirecionamento realizado.', { destination: '/dashboard' });
+      router.replace('/dashboard');
       router.refresh();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Falha ao fazer login. Verifique as credenciais.';
-      console.error('login failed', message);
-      setError(message);
+      setError(getAuthErrorMessage(error));
     }
   };
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
+import { getAppUrl, getAuthErrorMessage } from '@/src/lib/supabase/env';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -13,12 +14,12 @@ export default function ForgotPasswordPage() {
     setError('');
     setMessage('');
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password`,
+    const { error } = await getSupabaseBrowserClient().auth.resetPasswordForEmail(email, {
+      redirectTo: `${getAppUrl()}/reset-password`,
     });
 
     if (error) {
-      setError(error.message);
+      setError(getAuthErrorMessage(error));
       return;
     }
 

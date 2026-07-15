@@ -1,4 +1,6 @@
-import { supabase } from '@/src/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
+
+const supabase = getSupabaseBrowserClient();
 
 export type LocationRecord = {
   id: string;

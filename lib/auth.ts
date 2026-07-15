@@ -1,26 +1,21 @@
-import { supabase } from '@/src/lib/supabase/client';
-
-function getSupabaseErrorMessage(error: unknown) {
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    const message = (error as { message?: string }).message;
-    if (message) return message;
-  }
-
-  return 'Não foi possível concluir a autenticação. Tente novamente.';
-}
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
+import { devSupabaseLog, getAuthErrorMessage } from '@/src/lib/supabase/env';
 
 export async function signIn(email: string, password: string) {
+  const supabase = getSupabaseBrowserClient();
+  devSupabaseLog('Tentativa de login iniciada.');
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw new Error(getSupabaseErrorMessage(error));
+  if (error) throw new Error(getAuthErrorMessage(error));
+  devSupabaseLog('Resposta de autenticação recebida.', { authenticated: Boolean(data.user) });
   return data;
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw new Error(getSupabaseErrorMessage(error));
+  const { error } = await getSupabaseBrowserClient().auth.signOut();
+  if (error) throw new Error(getAuthErrorMessage(error));
 }
 
 export async function getSessionUser() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await getSupabaseBrowserClient().auth.getSession();
   return session?.user ?? null;
 }

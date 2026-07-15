@@ -1,4 +1,6 @@
-import { supabase } from '@/src/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/src/lib/supabase/client';
+
+const supabase = getSupabaseBrowserClient();
 
 export async function uploadLocationPhoto(locationId: string, file: File, description?: string) {
   const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
